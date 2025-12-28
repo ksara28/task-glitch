@@ -20,7 +20,6 @@ import {
 
 function AppContent() {
   const { loading, error, derivedSorted, addTask, updateTask, deleteTask, undoDelete, lastDeleted } = useTasksContext();
-  const handleCloseUndo = () => {};
   const [q, setQ] = useState('');
   const [fStatus, setFStatus] = useState<string>('All');
   const [fPriority, setFPriority] = useState<string>('All');
@@ -129,7 +128,8 @@ function AppContent() {
           {!loading && !error && <AnalyticsDashboard tasks={filtered} />}
           {!loading && !error && <ActivityLog items={activity} />}
 
-          <UndoSnackbar open={!!lastDeleted} onClose={handleCloseUndo} onUndo={handleUndo} />
+          {/* Updated UndoSnackbar: no props needed */}
+          <UndoSnackbar />
         </Stack>
       </Container>
     </Box>

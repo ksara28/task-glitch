@@ -45,12 +45,13 @@ export function useTasks(): UseTasksState {
     const now = Date.now();
     return (Array.isArray(input) ? input : []).map((t, idx) => {
       const created = t.createdAt ? new Date(t.createdAt) : new Date(now - (idx + 1) * 24 * 3600 * 1000);
-      const completed = t.completedAt || (t.status === 'Done' ? new Date(created.getTime() + 24 * 3600 * 1000).toISOString() : undefined);
+      const completed =
+        t.completedAt || (t.status === 'Done' ? new Date(created.getTime() + 24 * 3600 * 1000).toISOString() : undefined);
       return {
         id: t.id ?? `${idx}-${Date.now()}`,
         title: t.title ?? `Untitled Task ${idx + 1}`,
         revenue: Number(t.revenue) >= 0 ? Number(t.revenue) : 0,
-        timeTaken: Number(t.timeTaken) > 0 ? Number(t.timeTaken) : 1, // prevent division by zero
+        timeTaken: Number(t.timeTaken) > 0 ? Number(t.timeTaken) : 1,
         priority: t.priority ?? 'Medium',
         status: t.status ?? 'Todo',
         notes: t.notes ?? '',
@@ -78,20 +79,26 @@ export function useTasks(): UseTasksState {
       }
     }
     load();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Stable sort with tie-breaker
+  // Stable sort with safe ROI
   const derivedSorted = useMemo<DerivedTask[]>(() => {
     return tasks
       .map(withDerived)
       .sort((a, b) => {
-        // Primary: ROI descending
-        if (b.roi !== a.roi) return b.roi - a.roi;
-        // Secondary: Priority High > Medium > Low
+        const roiA = a.roi ?? 0;
+        const roiB = b.roi ?? 0;
+
+        if (roiB !== roiA) return roiB - roiA;
+
         const priorityValue = (p: string) => (p === 'High' ? 3 : p === 'Medium' ? 2 : 1);
-        if (priorityValue(b.priority) !== priorityValue(a.priority)) return priorityValue(b.priority) - priorityValue(a.priority);
-        // Tie-breaker: alphabetical by title
+        if (priorityValue(b.priority) !== priorityValue(a.priority)) {
+          return priorityValue(b.priority) - priorityValue(a.priority);
+        }
+
         return a.title.localeCompare(b.title);
       });
   }, [tasks]);
@@ -149,7 +156,7 @@ export function useTasks(): UseTasksState {
     setLastDeleted(null);
   }, [lastDeleted]);
 
-  // Reset lastDeleted (for snackbar close)
+  // Reset lastDeleted (for snackbar)
   const resetLastDeleted = useCallback(() => setLastDeleted(null), []);
 
   return { tasks, loading, error, derivedSorted, metrics, lastDeleted, addTask, updateTask, deleteTask, undoDelete, resetLastDeleted };
