@@ -1,22 +1,18 @@
+// src/components/UndoSnackbar.tsx
 import { Snackbar, Button } from '@mui/material';
+import { useTasksContext } from '@/context/TasksContext';
 
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  onUndo: () => void;
-}
+export default function UndoSnackbar() {
+  const { lastDeleted, undoDelete, resetLastDeleted } = useTasksContext();
 
-export default function UndoSnackbar({ open, onClose, onUndo }: Props) {
   return (
     <Snackbar
-      open={open}
-      onClose={onClose}
+      open={!!lastDeleted}
+      onClose={resetLastDeleted}        // reset lastDeleted on close
       autoHideDuration={4000}
       message="Task deleted"
-      action={<Button color="secondary" size="small" onClick={onUndo}>Undo</Button>}
+      action={<Button color="secondary" size="small" onClick={undoDelete}>Undo</Button>}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
     />
   );
 }
-
-

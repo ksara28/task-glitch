@@ -68,6 +68,7 @@ export default function TaskForm({ open, onClose, onSubmit, existingTitles, init
     !!status;
 
   const handleSubmit = () => {
+    const now = new Date().toISOString(); // ✅ Add createdAt
     const safeTime = typeof timeTaken === 'number' && timeTaken > 0 ? timeTaken : 1; // auto-correct
     const payload: Omit<Task, 'id'> & { id?: string } = {
       title: title.trim(),
@@ -76,6 +77,7 @@ export default function TaskForm({ open, onClose, onSubmit, existingTitles, init
       priority: ((priority || 'Medium') as Priority),
       status: ((status || 'Todo') as Status),
       notes: notes.trim() || undefined,
+      createdAt: initial?.createdAt ?? now, // ✅ Ensure createdAt exists
       ...(initial ? { id: initial.id } : {}),
     };
     onSubmit(payload);
@@ -146,5 +148,3 @@ export default function TaskForm({ open, onClose, onSubmit, existingTitles, init
     </Dialog>
   );
 }
-
-
